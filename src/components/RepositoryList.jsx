@@ -62,7 +62,7 @@ const RepositoryList = () => {
       /* INFO renderItem takes each item and creates an object out of it. Some properties existing on these objects include index
        */
       data={repositories}
-      renderItem={(item) => RepositoryItem(item)}
+      renderItem={({ item }) => <RepositoryItem item={item} />}
       ItemSeparatorComponent={ItemSeparator}
       keyExtractor={(item) => item.id}
     />
