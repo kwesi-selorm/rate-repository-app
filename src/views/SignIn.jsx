@@ -1,9 +1,12 @@
+// import { useMutation } from "@apollo/client";
 import { Formik } from "formik";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import * as yup from "yup";
 import FormikTextInput from "../components/FormikTextInput";
 import Text from "../components/Text";
+// import { AUTHENTICATE } from "../graphql/mutations";
+import { useSignIn } from "../hooks/useSignIn";
 import theme from "../theme";
 
 export const LoginForm = ({ onSubmit, formStyle, buttonStyle, errors }) => {
@@ -29,7 +32,9 @@ export const LoginForm = ({ onSubmit, formStyle, buttonStyle, errors }) => {
 };
 
 const SignIn = () => {
-  const initialValues = { username: "", password: "" };
+  const initialValues = { username: "eljaks", password: "testpwd" };
+  // const [token, setToken] = useState(null);
+  const [signIn, { loading, data }] = useSignIn();
 
   const validationSchema = yup.object().shape({
     username: yup
@@ -39,9 +44,16 @@ const SignIn = () => {
     password: yup.string().required("Password is required"),
   });
 
-  function onSubmit(values) {
-    console.log(values);
-  }
+  //Implement authentication and receive returned access token. Apply optional chaining for async data
+  const onSubmit = async (values) => {
+    try {
+      await signIn(values);
+      if (loading) return "Loading...";
+      if (data) console.log(data?.authenticate?.accessToken);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <Formik
