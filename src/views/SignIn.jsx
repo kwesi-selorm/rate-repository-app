@@ -5,7 +5,6 @@ import { Pressable, StyleSheet, View } from "react-native";
 import * as yup from "yup";
 import FormikTextInput from "../components/FormikTextInput";
 import Text from "../components/Text";
-// import { AUTHENTICATE } from "../graphql/mutations";
 import { useSignIn } from "../hooks/useSignIn";
 import theme from "../theme";
 
@@ -31,10 +30,11 @@ export const LoginForm = ({ onSubmit, formStyle, buttonStyle, errors }) => {
   );
 };
 
+//Main sign in component
 const SignIn = () => {
-  const initialValues = { username: "eljaks", password: "testpwd" };
-  // const [token, setToken] = useState(null);
-  const [signIn, { loading, data }] = useSignIn();
+  const initialValues = { username: "eljaks", password: "testpwd" }; //jadorkor, password
+  const [token, setToken] = useState();
+  const [signIn, result] = useSignIn();
 
   const validationSchema = yup.object().shape({
     username: yup
@@ -44,16 +44,21 @@ const SignIn = () => {
     password: yup.string().required("Password is required"),
   });
 
-  //Implement authentication and receive returned access token. Apply optional chaining for async data
+  /* Implement authentication on form submission and retrieve returned access token. Apply optional chaining for async data */
   const onSubmit = async (values) => {
     try {
       await signIn(values);
-      if (loading) return "Loading...";
-      if (data) console.log(data?.authenticate?.accessToken);
+      if (result.loading) return "Loading...";
     } catch (error) {
       console.log(error.message);
     }
   };
+
+  //Watch changes in result, possibly loading changing from true to false, and data changing from undefined to finite
+  useEffect(() => {
+    setToken(result?.data?.authenticate?.accessToken);
+    console.log(token);
+  }, [result]);
 
   return (
     <Formik
