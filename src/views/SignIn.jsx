@@ -1,10 +1,13 @@
 // import { useMutation } from "@apollo/client";
+import { useApolloClient } from "@apollo/client";
 import { Formik } from "formik";
 import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { useNavigate } from "react-router-native";
 import * as yup from "yup";
 import FormikTextInput from "../components/FormikTextInput";
 import Text from "../components/Text";
+import useAuthStorage from "../hooks/useAuthStorage";
 import { useSignIn } from "../hooks/useSignIn";
 import theme from "../theme";
 
@@ -35,8 +38,10 @@ const SignIn = () => {
   const initialValues = { username: "eljaks", password: "testpwd" }; //jadorkor, password
   const [token, setToken] = useState();
   const [signIn, result] = useSignIn();
+  const navigate = useNavigate();
+  const authStorage = useAuthStorage();
+  const apolloClient = useApolloClient();
 
-  /* It's validating the form inputs. */
   const validationSchema = yup.object().shape({
     username: yup
       .string()
@@ -45,26 +50,25 @@ const SignIn = () => {
     password: yup.string().required("Password is required"),
   });
 
-  /**
-   * OnSubmit is an async function that takes in values, and then tries to signIn with those values, and
-   * if it's loading, it returns 'Loading...'. It implements authentication on form submission and
-   * retrieves the returned access token. Apply optional chaining for async data
-   * @returns The return value of the onSubmit function is the string "Loading...".
-   */
   const onSubmit = async (values) => {
     try {
       await signIn(values);
       if (result.loading) return "Loading...";
+      if (result.data) {
+        authStorage.setAccessToken(token);
+        apolloClient.resetStore();
+      }
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  /* Watching for changes in the result object, and when it changes, it sets the token to the value of
-  the accessToken property of the authenticate property of the data property of the result object. */
   useEffect(() => {
     setToken(result?.data?.authenticate?.accessToken);
-    token && console.log(token);
+    if (token) {
+      navigate("/");
+      console.log(token);
+    }
   }, [result]);
 
   return (
