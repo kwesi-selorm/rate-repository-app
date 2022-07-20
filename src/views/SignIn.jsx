@@ -36,6 +36,7 @@ const SignIn = () => {
   const [token, setToken] = useState();
   const [signIn, result] = useSignIn();
 
+  /* It's validating the form inputs. */
   const validationSchema = yup.object().shape({
     username: yup
       .string()
@@ -44,7 +45,12 @@ const SignIn = () => {
     password: yup.string().required("Password is required"),
   });
 
-  /* Implement authentication on form submission and retrieve returned access token. Apply optional chaining for async data */
+  /**
+   * OnSubmit is an async function that takes in values, and then tries to signIn with those values, and
+   * if it's loading, it returns 'Loading...'. It implements authentication on form submission and
+   * retrieves the returned access token. Apply optional chaining for async data
+   * @returns The return value of the onSubmit function is the string "Loading...".
+   */
   const onSubmit = async (values) => {
     try {
       await signIn(values);
@@ -54,10 +60,11 @@ const SignIn = () => {
     }
   };
 
-  //Watch changes in result, possibly loading changing from true to false, and data changing from undefined to finite
+  /* Watching for changes in the result object, and when it changes, it sets the token to the value of
+  the accessToken property of the authenticate property of the data property of the result object. */
   useEffect(() => {
     setToken(result?.data?.authenticate?.accessToken);
-    console.log(token);
+    token && console.log(token);
   }, [result]);
 
   return (
