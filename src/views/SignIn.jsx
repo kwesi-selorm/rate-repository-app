@@ -54,20 +54,18 @@ const SignIn = () => {
     try {
       await signIn(values);
       if (result.loading) return "Loading...";
-      if (result.data) {
-        authStorage.setAccessToken(token);
-        apolloClient.resetStore();
-      }
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  useEffect(() => {
+  useEffect(async () => {
     setToken(result?.data?.authenticate?.accessToken);
     if (token) {
+      console.log("Token saved", token.slice(0, 20), "...");
+      await authStorage.setAccessToken(token);
+      apolloClient.resetStore(); // Re-executes all queries to the access token should be available
       navigate("/");
-      console.log(token);
     }
   }, [result]);
 
