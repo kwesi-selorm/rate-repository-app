@@ -44,10 +44,8 @@ const AppBar = () => {
    */
   const handleLogout = async () => {
     try {
-      console.log("before", data?.me);
       await authStorage.removeAccessToken();
       await apolloClient.resetStore();
-      console.log("after", data?.me);
       navigate("/view");
     } catch (error) {
       throw new Error(`Something went wrong: ${error}`);
